@@ -1,0 +1,43 @@
+services:
+  checkout-api:
+    build: .
+    container_name: checkout-api
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/checkout
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root123
+      SPRING_JPA_HIBERNATE_DDL-AUTO: update
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - checkout-network
+
+  db:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: checkout
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - checkout-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+networks:
+  checkout-network:
+    driver: bridge
