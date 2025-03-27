@@ -1,43 +1,46 @@
 services:
-  checkout-api:
+  shopping-cart-api:
     build: .
-    container_name: checkout-api
+    container_name: shopping-cart-api
     restart: unless-stopped
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/checkout
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/shopping_cart
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: root123
       SPRING_JPA_HIBERNATE_DDL-AUTO: update
+      SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: 30000
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
-      - checkout-network
+      - shopping-cart-network
 
   db:
     image: postgres:latest
     container_name: postgres
     restart: always
     environment:
-      POSTGRES_DB: checkout
+      POSTGRES_DB: shopping_cart
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root123
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - shopping_cart_postgres_data:/var/lib/postgresql/data
     networks:
-      - checkout-network
+      - shopping-cart-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U postgres -d shopping_cart"]
+      interval: 2s
       timeout: 5s
-      retries: 5
+      retries: 15
+      start_period: 10s
 
 volumes:
-  postgres_data:
+  shopping_cart_postgres_data:
 
 networks:
-  checkout-network:
+  shopping-cart-network:
     driver: bridge
