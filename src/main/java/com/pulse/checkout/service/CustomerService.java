@@ -1,9 +1,7 @@
 package com.pulse.checkout.service;
 
-import com.pulse.checkout.domain.Customer;
-import com.pulse.checkout.domain.CustomerAddress;
-import com.pulse.checkout.domain.CustomerAddressDto;
-import com.pulse.checkout.domain.CustomerDto;
+import com.pulse.checkout.domain.dto.CustomerAddressDto;
+import com.pulse.checkout.domain.dto.CustomerDto;
 import com.pulse.checkout.repository.CustomerAddressRepository;
 import com.pulse.checkout.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;

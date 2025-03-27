@@ -1,6 +1,10 @@
 package com.pulse.checkout.service;
 
-import com.pulse.checkout.domain.*;
+import com.pulse.checkout.domain.dto.CartDto;
+import com.pulse.checkout.domain.model.Cart;
+import com.pulse.checkout.domain.model.CartItem;
+import com.pulse.checkout.domain.model.Customer;
+import com.pulse.checkout.domain.model.Product;
 import com.pulse.checkout.repository.CartRepository;
 import com.pulse.checkout.repository.CustomerRepository;
 import com.pulse.checkout.repository.ProductRepository;

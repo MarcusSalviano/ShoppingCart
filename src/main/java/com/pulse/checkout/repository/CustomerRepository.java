@@ -1,6 +1,6 @@
 package com.pulse.checkout.repository;
 
-import com.pulse.checkout.domain.Customer;
+import com.pulse.checkout.domain.model.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

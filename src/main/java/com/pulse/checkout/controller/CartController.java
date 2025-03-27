@@ -1,9 +1,9 @@
 package com.pulse.checkout.controller;
 
-import com.pulse.checkout.domain.AddItemDto;
-import com.pulse.checkout.domain.Cart;
-import com.pulse.checkout.domain.CartDto;
-import com.pulse.checkout.domain.Customer;
+import com.pulse.checkout.domain.dto.AddItemDto;
+import com.pulse.checkout.domain.model.Cart;
+import com.pulse.checkout.domain.dto.CartDto;
+import com.pulse.checkout.domain.model.Customer;
 import com.pulse.checkout.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

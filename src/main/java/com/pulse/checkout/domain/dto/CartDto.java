@@ -1,4 +1,7 @@
-package com.pulse.checkout.domain;
+package com.pulse.checkout.domain.dto;
+
+import com.pulse.checkout.domain.model.Cart;
+import com.pulse.checkout.domain.model.CartItem;
 
 import java.util.List;
 

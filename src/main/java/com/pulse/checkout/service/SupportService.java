@@ -1,8 +1,8 @@
 package com.pulse.checkout.service;
 
-import com.pulse.checkout.domain.Customer;
-import com.pulse.checkout.domain.CustomerAddress;
-import com.pulse.checkout.domain.Product;
+import com.pulse.checkout.domain.model.Customer;
+import com.pulse.checkout.domain.model.CustomerAddress;
+import com.pulse.checkout.domain.model.Product;
 import com.pulse.checkout.repository.CustomerAddressRepository;
 import com.pulse.checkout.repository.CustomerRepository;
 import com.pulse.checkout.repository.ProductRepository;
@@ -69,9 +69,5 @@ public class SupportService {
                 new Product("Mouse Sem Fio Logitech MX", BigDecimal.valueOf(399.90))
         );
         productRepository.saveAll(products);
-    }
-
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
     }
 }

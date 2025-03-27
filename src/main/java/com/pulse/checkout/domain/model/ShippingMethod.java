@@ -1,4 +1,4 @@
-package com.pulse.checkout.domain;
+package com.pulse.checkout.domain.model;
 
 public enum ShippingMethod {
     STANDARD,

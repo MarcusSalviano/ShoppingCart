@@ -1,6 +1,6 @@
 package com.pulse.checkout.repository;
 
-import com.pulse.checkout.domain.Cart;
+import com.pulse.checkout.domain.model.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,6 @@
-package com.pulse.checkout.domain;
+package com.pulse.checkout.domain.dto;
+
+import com.pulse.checkout.domain.model.Customer;
 
 import java.util.List;
 

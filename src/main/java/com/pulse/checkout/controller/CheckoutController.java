@@ -1,7 +1,7 @@
 package com.pulse.checkout.controller;
 
-import com.pulse.checkout.domain.CheckoutRequestDto;
-import com.pulse.checkout.domain.Order;
+import com.pulse.checkout.domain.dto.CheckoutRequestDto;
+import com.pulse.checkout.domain.model.Order;
 import com.pulse.checkout.service.CheckoutService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
