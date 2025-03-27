@@ -2,6 +2,8 @@ package com.pulse.checkout.controller;
 
 import com.pulse.checkout.domain.Customer;
 import com.pulse.checkout.domain.CustomerAddress;
+import com.pulse.checkout.domain.CustomerAddressDto;
+import com.pulse.checkout.domain.CustomerDto;
 import com.pulse.checkout.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +19,12 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping(produces = "application/json")
-    public ResponseEntity<List<Customer>> getAllCustomers() {
+    public ResponseEntity<List<CustomerDto>> getAllCustomers() {
         return ResponseEntity.ok(customerService.getAllCustomers());
     }
 
     @GetMapping(value = "/{customerId}", produces = "application/json")
-    public ResponseEntity<List<CustomerAddress>> getCustomerAdresses(@PathVariable Long customerId) {
+    public ResponseEntity<List<CustomerAddressDto>> getCustomerAdresses(@PathVariable Long customerId) {
         return ResponseEntity.ok(customerService.getCustomerAddresses(customerId));
     }
 }

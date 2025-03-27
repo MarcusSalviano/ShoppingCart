@@ -16,15 +16,21 @@ import java.util.List;
 @Table(name = "orders")
 public class Order {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
     private Customer customer;
-    @OneToMany(cascade = CascadeType.ALL) private List<OrderItem> items;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<OrderItem> items;
 
     private BigDecimal total;
+
+    @ManyToOne
+    @JoinColumn(name = "shipping_address_id")
     private CustomerAddress shippingAddress;
+
     private ShippingMethod shippingMethod;
     private PaymentMethod paymentMethod;
     private LocalDateTime orderDate;

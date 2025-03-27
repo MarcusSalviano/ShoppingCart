@@ -27,20 +27,8 @@ public class CustomerAddress {
     private String state;
     private String zipCode;
 
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
-
-    public CustomerAddress(String addressName, String street, String number, String complement, String neighborhood, String city, String state, String zipCode, Customer customer) {
-        this.addressName = addressName;
-        this.street = street;
-        this.number = number;
-        this.complement = complement;
-        this.neighborhood = neighborhood;
-        this.city = city;
-        this.state = state;
-        this.zipCode = zipCode;
-        this.customer = customer;
-    }
 }
 

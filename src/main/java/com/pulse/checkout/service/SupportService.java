@@ -29,24 +29,24 @@ public class SupportService {
         // Endereços com todos os campos preenchidos
         List<CustomerAddress> addresses = Arrays.asList(
                 // Endereços do João
-                new CustomerAddress(
+                new CustomerAddress(null,
                         "Casa",
                         "Rua das Flores", "123", "Apto 101", "Centro",
                         "Fortaleza", "CE", "60000-000", joao),
 
-                new CustomerAddress(
+                new CustomerAddress(null,
                         "Trabalho",
                         "Avenida Beira Mar", "456", "Sala 302", "Meireles",
                         "Fortaleza", "CE", "60165-000", joao),
 
                 // Endereço da Maria
-                new CustomerAddress(
+                new CustomerAddress(null,
                         "Residencial",
                         "Rua das Palmeiras", "789", "Casa 2", "Jardins",
                         "São Paulo", "SP", "01402-000", maria),
 
                 // Endereço do Carlos
-                new CustomerAddress(
+                new CustomerAddress(null,
                         "Apartamento",
                         "Avenida Brasil", "321", "Bloco B, Apto 501", "Copacabana",
                         "Rio de Janeiro", "RJ", "22010-000", carlos)
