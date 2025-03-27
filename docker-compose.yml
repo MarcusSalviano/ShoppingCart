@@ -4,11 +4,11 @@ services:
     container_name: shopping-cart-api
     restart: unless-stopped
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/shopping_cart
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: root123
-      SPRING_JPA_HIBERNATE_DDL-AUTO: update
       SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: 30000
+      DB_HOST: db
+      DB_NAME: shopping_cart
+      DB_USER: postgres
+      DB_PASSWORD: root123
     ports:
       - "8080:8080"
     depends_on:
