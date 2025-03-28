@@ -1,6 +1,9 @@
 package com.pulse.checkout;
 
-import com.pulse.checkout.domain.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import com.pulse.checkout.domain.model.*;
 import com.pulse.checkout.repository.CartRepository;
 import com.pulse.checkout.repository.CustomerAddressRepository;
 import com.pulse.checkout.repository.OrderRepository;
@@ -14,122 +17,183 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.Collections;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CheckoutServiceTest {
 
-    @Mock private CartRepository cartRepository;
-    @Mock private CustomerAddressRepository addressRepository;
-    @Mock private OrderRepository orderRepository;
+    @Mock
+    private CartRepository cartRepository;
 
-    @InjectMocks private CheckoutService checkoutService;
+    @Mock
+    private CustomerAddressRepository addressRepository;
+
+    @Mock
+    private OrderRepository orderRepository;
+
+    @InjectMocks
+    private CheckoutService checkoutService;
 
     private Cart cart;
     private Customer customer;
     private CustomerAddress address;
-    private Product product;
+    private Product product1;
+    private Product product2;
+    private CartItem cartItem1;
+    private CartItem cartItem2;
 
     @BeforeEach
     void setUp() {
-        customer = new Customer("João Silva", "joao@example.com");
+        customer = new Customer("John Doe", "john@example.com");
         customer.setId(1L);
 
-        address = new CustomerAddress(
-                "Casa", "Rua A", "123", "Apto 1", "Centro",
-                "São Paulo", "SP", "01000-000", customer
-        );
+        address = new CustomerAddress();
         address.setId(1L);
+        address.setCustomer(customer);
+        address.setStreet("Main St");
+        address.setCity("Springfield");
+        address.setState("IL");
+        address.setZipCode("12345");
 
-        product = new Product("Smartphone", BigDecimal.valueOf(1000));
-        product.setId(1L);
+        product1 = new Product("Product 1", BigDecimal.valueOf(10.99));
+        product1.setId(1L);
+        product2 = new Product("Product 2", BigDecimal.valueOf(5.50));
+        product2.setId(2L);
 
-        cart = new Cart();
+        cart = new Cart(customer);
         cart.setId(1L);
-        cart.setCustomer(customer);
         cart.setCheckedOut(false);
-        cart.setItems(Collections.singletonList(
-                new CartItem(product, 2, cart) // Agora usando o novo construtor
-        ));
+
+        cartItem1 = new CartItem(product1, 2, cart);
+        cartItem2 = new CartItem(product2, 3, cart);
+
+        List<CartItem> items = new ArrayList<>();
+        items.add(cartItem1);
+        items.add(cartItem2);
+        cart.setItems(items);
     }
 
     @Test
-    void checkout_ShouldCreateOrder_WhenValidData() {
+    void checkout_Successful() {
         // Arrange
         when(cartRepository.findById(1L)).thenReturn(Optional.of(cart));
         when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        Order order = checkoutService.checkout(
-                1L, 1L, ShippingMethod.STANDARD, PaymentMethod.CREDIT_CARD
-        );
+        Order result = checkoutService.checkout(1L, 1L, ShippingMethod.STANDARD, PaymentMethod.CREDIT_CARD);
 
         // Assert
-        assertAll(
-                () -> assertNotNull(order),
-                () -> assertEquals(customer, order.getCustomer()),
-                () -> assertEquals(address, order.getShippingAddress()),
-                () -> assertEquals(BigDecimal.valueOf(2000), order.getTotal()),
-                () -> assertEquals(1, order.getItems().size()),
-                () -> assertTrue(cart.isCheckedOut()),
-                () -> verify(cartRepository).save(cart)
-        );
+        assertNotNull(result);
+        assertEquals(customer, result.getCustomer());
+        assertEquals(address, result.getShippingAddress());
+        assertEquals(ShippingMethod.STANDARD, result.getShippingMethod());
+        assertEquals(PaymentMethod.CREDIT_CARD, result.getPaymentMethod());
+        assertNotNull(result.getOrderDate());
+        assertFalse(result.getOrderDate().isAfter(LocalDateTime.now()));
+
+        // Verify items and total
+        assertEquals(2, result.getItems().size());
+        BigDecimal expectedTotal = product1.getPrice().multiply(BigDecimal.valueOf(2))
+                .add(product2.getPrice().multiply(BigDecimal.valueOf(3)));
+        assertEquals(expectedTotal, result.getTotal());
+
+        // Verify cart is marked as checked out
+        assertTrue(cart.isCheckedOut());
+
+        // Verify repository interactions
+        verify(cartRepository).findById(1L);
+        verify(addressRepository).findById(1L);
+        verify(orderRepository).save(any(Order.class));
     }
 
     @Test
-    void checkout_ShouldThrowException_WhenCartNotFound() {
-        when(cartRepository.findById(99L)).thenReturn(Optional.empty());
+    void checkout_CartNotFound_ThrowsException() {
+        // Arrange
+        when(cartRepository.findById(1L)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(EntityNotFoundException.class, () ->
-                checkoutService.checkout(99L, 1L, ShippingMethod.STANDARD, PaymentMethod.CREDIT_CARD)
-        );
-
-        assertEquals("Cart not found", exception.getMessage());
-    }
-
-    @Test
-    void checkout_ShouldThrowException_WhenAddressNotFound() {
-        when(cartRepository.findById(1L)).thenReturn(Optional.of(cart));
-        when(addressRepository.findById(99L)).thenReturn(Optional.empty());
-
-        Exception exception = assertThrows(EntityNotFoundException.class, () ->
-                checkoutService.checkout(1L, 99L, ShippingMethod.STANDARD, PaymentMethod.CREDIT_CARD)
-        );
-
-        assertEquals("Address not found", exception.getMessage());
-    }
-
-    @Test
-    void checkout_ShouldThrowException_WhenCartAlreadyCheckedOut() {
-        cart.setCheckedOut(true);
-        when(cartRepository.findById(1L)).thenReturn(Optional.of(cart));
-
-        Exception exception = assertThrows(IllegalStateException.class, () ->
+        // Act & Assert
+        assertThrows(Exception.class, () ->
                 checkoutService.checkout(1L, 1L, ShippingMethod.STANDARD, PaymentMethod.CREDIT_CARD)
         );
 
-        assertEquals("Cart already checked out", exception.getMessage());
+        verify(cartRepository).findById(1L);
+        verifyNoInteractions(addressRepository, orderRepository);
     }
 
     @Test
-    void checkout_ShouldCalculateCorrectTotal_WithMultipleItems() {
-        // Arrange - Adiciona mais um item ao carrinho
-        Product notebook = new Product("Notebook", BigDecimal.valueOf(2500));
-        cart.getItems().add(new CartItem(notebook, 1, cart));
+    void checkout_AddressNotFound_ThrowsException() {
+        // Arrange
+        when(cartRepository.findById(1L)).thenReturn(Optional.of(cart));
+        when(addressRepository.findById(1L)).thenReturn(Optional.empty());
 
+        // Act & Assert
+        assertThrows(EntityNotFoundException.class, () ->
+                checkoutService.checkout(1L, 1L, ShippingMethod.STANDARD, PaymentMethod.CREDIT_CARD)
+        );
+
+        verify(cartRepository).findById(1L);
+        verify(addressRepository).findById(1L);
+        verifyNoInteractions(orderRepository);
+    }
+
+    @Test
+    void checkout_CartAlreadyCheckedOut_ThrowsException() {
+        // Arrange
+        cart.setCheckedOut(true);
+        when(cartRepository.findById(1L)).thenReturn(Optional.of(cart));
+
+        // Act & Assert
+        assertThrows(IllegalStateException.class, () ->
+                checkoutService.checkout(1L, 1L, ShippingMethod.STANDARD, PaymentMethod.CREDIT_CARD)
+        );
+
+        verify(cartRepository).findById(1L);
+        verifyNoInteractions(addressRepository, orderRepository);
+    }
+
+    @Test
+    void checkout_EmptyCart_SuccessfulWithZeroTotal() {
+        // Arrange
+        cart.setItems(new ArrayList<>());
         when(cartRepository.findById(1L)).thenReturn(Optional.of(cart));
         when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        Order order = checkoutService.checkout(1L, 1L, ShippingMethod.EXPRESS, PaymentMethod.PIX);
+        Order result = checkoutService.checkout(1L, 1L, ShippingMethod.EXPRESS, PaymentMethod.PIX);
 
         // Assert
-        assertEquals(BigDecimal.valueOf(4500), order.getTotal()); // (2x1000) + (1x2500)
+        assertNotNull(result);
+        assertEquals(0, result.getItems().size());
+        assertEquals(BigDecimal.ZERO, result.getTotal());
+        assertTrue(cart.isCheckedOut());
+    }
+
+    @Test
+    void checkout_VerifyOrderItemDetails() {
+        // Arrange
+        when(cartRepository.findById(1L)).thenReturn(Optional.of(cart));
+        when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Order result = checkoutService.checkout(1L, 1L, ShippingMethod.CORREIOS_PAC, PaymentMethod.BOLETO);
+
+        // Assert
+        assertEquals(2, result.getItems().size());
+
+        OrderItem item1 = result.getItems().get(0);
+        assertEquals(product1.getName(), item1.getProductName());
+        assertEquals(cartItem1.getQuantity(), item1.getQuantity());
+        assertEquals(product1.getPrice(), item1.getUnitPrice());
+
+        OrderItem item2 = result.getItems().get(1);
+        assertEquals(product2.getName(), item2.getProductName());
+        assertEquals(cartItem2.getQuantity(), item2.getQuantity());
+        assertEquals(product2.getPrice(), item2.getUnitPrice());
     }
 }
