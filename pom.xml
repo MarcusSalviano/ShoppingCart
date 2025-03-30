@@ -10,8 +10,8 @@
 	</parent>
 	<groupId>com.pulse</groupId>
 	<artifactId>checkout</artifactId>
-	<version>0.0.1s</version>
-	<name>Checkout</name>
+	<version>1.0</version>
+	<name>Shopping Cart</name>
 	<description>Projeto de Carrinho de Compras</description>
 	<url/>
 	<licenses>
@@ -91,6 +91,25 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.10</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
