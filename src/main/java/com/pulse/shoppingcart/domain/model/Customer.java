@@ -19,13 +19,15 @@ public class Customer {
     private Long id;
     private String name;
     private String email;
+    private String cpf;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CustomerAddress> addresses = new ArrayList<>();
 
-    public Customer(String name, String email) {
+    public Customer(String name, String email, String cpf) {
         this.name = name;
         this.email = email;
+        this.cpf = cpf;
     }
 
     public void addAddress(CustomerAddress address) {
