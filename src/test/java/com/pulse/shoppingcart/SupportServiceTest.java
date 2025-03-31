@@ -27,6 +27,11 @@ class SupportServiceTest {
 
     @Test
     void generateRecords_PersistsCustomersAddressesAndProducts() {
+        // Arrange
+        when(customerRepository.saveAll(anyList())).thenReturn(null); // ou um valor de retorno adequado
+        when(customerAddressRepository.saveAll(anyList())).thenReturn(null);
+        when(productRepository.saveAll(anyList())).thenReturn(null);
+
         // Act
         supportService.generateRecords();
 
@@ -36,4 +41,3 @@ class SupportServiceTest {
         verify(productRepository, times(1)).saveAll(anyList());
     }
 }
-

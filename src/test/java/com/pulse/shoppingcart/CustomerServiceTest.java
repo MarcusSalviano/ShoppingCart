@@ -13,8 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class CustomerServiceTest {
 
@@ -31,24 +30,35 @@ class CustomerServiceTest {
 
     @Test
     void getAllCustomers_ReturnsListOfCustomerDtos() {
+        // Arrange
         Customer c1 = new Customer();
         Customer c2 = new Customer();
+
         when(customerRepository.findAll()).thenReturn(List.of(c1, c2));
 
+        // Act
         List<CustomerDto> result = customerService.getAllCustomers();
 
-        assertEquals(2, result.size());
+        // Assert
+        assertEquals(2, result.size(), "Expected list size to be 2.");
+
+        verify(customerRepository).findAll();
     }
 
     @Test
     void getCustomerAddresses_ReturnsListOfCustomerAddressDtos() {
+        // Arrange
         CustomerAddress a1 = new CustomerAddress();
         CustomerAddress a2 = new CustomerAddress();
+
         when(addressRepository.findByCustomerId(1L)).thenReturn(List.of(a1, a2));
 
+        // Act
         List<CustomerAddressDto> result = customerService.getCustomerAddresses(1L);
 
-        assertEquals(2, result.size());
+        // Assert
+        assertEquals(2, result.size(), "Expected list size to be 2.");
+
+        verify(addressRepository).findByCustomerId(1L);
     }
 }
-

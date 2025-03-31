@@ -24,14 +24,18 @@ class ProductServiceTest {
 
     @Test
     void getAllProducts_ReturnsListOfProducts() {
+        // Arrange
         Product p1 = new Product();
         Product p2 = new Product();
 
         when(productRepository.findAll()).thenReturn(List.of(p1, p2));
 
+        // Act
         List<Product> result = productService.getAllProducts();
 
-        assertEquals(2, result.size());
+        // Assert
+        assertEquals(2, result.size(), "The size of the returned list should be 2.");
+
+        verify(productRepository).findAll();
     }
 }
-
