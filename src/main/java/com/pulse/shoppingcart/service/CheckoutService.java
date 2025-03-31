@@ -20,7 +20,9 @@ public class CheckoutService {
     private final OrderRepository orderRepository;
 
     public Order checkout(Long cartId, Long addressId, ShippingMethod shippingMethod, PaymentMethod paymentMethod) {
-        Cart cart = cartRepository.findById(cartId).orElseThrow();
+        Cart cart = cartRepository.findById(cartId).
+                orElseThrow(() -> new EntityNotFoundException("Cart not found"));
+
         if (cart.isCheckedOut()) throw new IllegalStateException("Cart already checked out");
 
         CustomerAddress address = addressRepository.findById(addressId)
