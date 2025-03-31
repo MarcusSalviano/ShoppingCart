@@ -1,43 +1,59 @@
 package com.pulse.shoppingcart;
 
+import com.pulse.shoppingcart.domain.model.*;
 import com.pulse.shoppingcart.repository.*;
 import com.pulse.shoppingcart.service.SupportService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.*;
+import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DataJpaTest
 class SupportServiceTest {
 
+    @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
     private CustomerAddressRepository customerAddressRepository;
+
+    @Autowired
     private ProductRepository productRepository;
-    private SupportService supportService;
+
+    @Autowired
     private CartRepository cartRepository;
+
+    @Autowired
     private OrderRepository orderRepository;
+
+    private SupportService supportService;
 
     @BeforeEach
     void setUp() {
-        customerRepository = mock(CustomerRepository.class);
-        customerAddressRepository = mock(CustomerAddressRepository.class);
-        productRepository = mock(ProductRepository.class);
         supportService = new SupportService(customerRepository, customerAddressRepository, productRepository, cartRepository, orderRepository);
     }
 
     @Test
-    void generateRecords_PersistsCustomersAddressesAndProducts() {
-        // Arrange
-        when(customerRepository.saveAll(anyList())).thenReturn(null); // ou um valor de retorno adequado
-        when(customerAddressRepository.saveAll(anyList())).thenReturn(null);
-        when(productRepository.saveAll(anyList())).thenReturn(null);
-
-        // Act
+    void testGenerateRecords() {
         supportService.generateRecords();
 
-        // Assert
-        verify(customerRepository, times(1)).saveAll(anyList());
-        verify(customerAddressRepository, times(1)).saveAll(anyList());
-        verify(productRepository, times(1)).saveAll(anyList());
+        List<Customer> customers = customerRepository.findAll();
+        assertThat(customers).hasSize(3);
+
+        List<CustomerAddress> addresses = customerAddressRepository.findAll();
+        assertThat(addresses).isNotEmpty();
+
+        List<Product> products = productRepository.findAll();
+        assertThat(products).hasSize(10);
+
+        List<Cart> carts = cartRepository.findAll();
+        assertThat(carts).isNotEmpty();
+
+        List<Order> orders = orderRepository.findAll();
+        assertThat(orders).isNotEmpty();
     }
 }
