@@ -8,6 +8,7 @@ import com.pulse.shoppingcart.repository.CartRepository;
 import com.pulse.shoppingcart.repository.CustomerAddressRepository;
 import com.pulse.shoppingcart.repository.OrderRepository;
 import com.pulse.shoppingcart.service.CheckoutService;
+import com.pulse.shoppingcart.service.NFService;
 import com.pulse.shoppingcart.util.PriceUtils;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,9 @@ class CheckoutServiceTest {
     @Mock
     private OrderRepository orderRepository;
 
+    @Mock
+    private NFService nfService;
+
     @InjectMocks
     private CheckoutService checkoutService;
 
@@ -46,7 +50,7 @@ class CheckoutServiceTest {
 
     @BeforeEach
     void setUp() {
-        customer = new Customer("John Doe", "john@example.com");
+        customer = new Customer("John Doe", "john@example.com", "111.111.111-11");
         customer.setId(1L);
 
         address = new CustomerAddress();

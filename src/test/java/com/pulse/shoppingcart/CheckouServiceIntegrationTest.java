@@ -3,6 +3,7 @@ package com.pulse.shoppingcart;
 import com.pulse.shoppingcart.domain.model.*;
 import com.pulse.shoppingcart.repository.*;
 import com.pulse.shoppingcart.service.CheckoutService;
+import com.pulse.shoppingcart.service.NFService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
@@ -11,7 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
@@ -20,12 +24,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(CheckoutService.class)
 @ActiveProfiles("test")
 class CheckoutServiceIntegrationTest {
+
+    @TestConfiguration
+    static class NFServiceTestConfig {
+        @Bean
+        @Primary
+        public NFService nfService() {
+            return mock(NFService.class);
+        }
+    }
 
     @Autowired
     private CartRepository cartRepository;
@@ -64,7 +78,7 @@ class CheckoutServiceIntegrationTest {
         customerRepository.deleteAll();
 
         // Create and save customer
-        customer = new Customer("John Doe", "john@example.com");
+        customer = new Customer("John Doe", "john@example.com", "111.111.111-11");
         customer = customerRepository.save(customer);
 
         // Create and save products
