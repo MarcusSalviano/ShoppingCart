@@ -38,6 +38,10 @@ public class CartService {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
 
+        if (cart.isCheckedOut()) {
+            throw new IllegalStateException("Cannot add items to a checked out cart");
+        }
+
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
