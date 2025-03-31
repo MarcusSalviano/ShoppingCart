@@ -14,6 +14,7 @@ public class PriceUtils {
 
     public static BigDecimal getTotal(List<? extends Item> items, BigDecimal discount) {
         BigDecimal total = BigDecimal.ZERO;
+
         if (items != null) {
             for (Item item : items) {
                 BigDecimal itemTotal = getProductTotal(item, item.getDiscount());
@@ -21,7 +22,7 @@ public class PriceUtils {
             }
         }
 
-        return getTotalWithDiscount(total, discount).setScale(2, RoundingMode.HALF_UP);
+        return getTotalWithDiscount(total, discount);
     }
 
     public static BigDecimal getProductTotal(Item item, BigDecimal discount) {
@@ -33,10 +34,12 @@ public class PriceUtils {
         return getTotalWithDiscount(total, discount).setScale(2, RoundingMode.HALF_UP);
     }
 
-    private static BigDecimal getTotalWithDiscount(BigDecimal total, BigDecimal discount) {
+    public static BigDecimal getTotalWithDiscount(BigDecimal total, BigDecimal discount) {
         if (discount != null) {
             total = total.multiply(BigDecimal.valueOf(1).subtract(discount.divide(BigDecimal.valueOf(100))));
         }
-        return total;
+        return total
+                .setScale(2, RoundingMode.HALF_UP)
+                .stripTrailingZeros();
     }
 }
