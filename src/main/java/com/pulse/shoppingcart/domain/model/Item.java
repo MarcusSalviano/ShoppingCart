@@ -1,10 +1,7 @@
 package com.pulse.shoppingcart.domain.model;
 
 import com.pulse.shoppingcart.util.PriceUtils;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -16,7 +13,7 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 @MappedSuperclass
 public class Item {
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
 
