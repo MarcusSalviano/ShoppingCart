@@ -1,8 +1,6 @@
 package com.pulse.shoppingcart;
 
-import com.pulse.shoppingcart.repository.CustomerAddressRepository;
-import com.pulse.shoppingcart.repository.CustomerRepository;
-import com.pulse.shoppingcart.repository.ProductRepository;
+import com.pulse.shoppingcart.repository.*;
 import com.pulse.shoppingcart.service.SupportService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,13 +14,15 @@ class SupportServiceTest {
     private CustomerAddressRepository customerAddressRepository;
     private ProductRepository productRepository;
     private SupportService supportService;
+    private CartRepository cartRepository;
+    private OrderRepository orderRepository;
 
     @BeforeEach
     void setUp() {
         customerRepository = mock(CustomerRepository.class);
         customerAddressRepository = mock(CustomerAddressRepository.class);
         productRepository = mock(ProductRepository.class);
-        supportService = new SupportService(customerRepository, customerAddressRepository, productRepository);
+        supportService = new SupportService(customerRepository, customerAddressRepository, productRepository, cartRepository, orderRepository);
     }
 
     @Test
