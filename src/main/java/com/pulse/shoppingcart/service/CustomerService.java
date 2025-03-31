@@ -2,6 +2,8 @@ package com.pulse.shoppingcart.service;
 
 import com.pulse.shoppingcart.domain.dto.CustomerAddressDto;
 import com.pulse.shoppingcart.domain.dto.CustomerDto;
+import com.pulse.shoppingcart.domain.model.Customer;
+import com.pulse.shoppingcart.domain.model.CustomerAddress;
 import com.pulse.shoppingcart.repository.CustomerAddressRepository;
 import com.pulse.shoppingcart.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,4 +30,11 @@ public class CustomerService {
                 .toList();
     }
 
+    public Customer saveCustomer(Customer customer) {
+        for (CustomerAddress address : customer.getAddresses()) {
+            address.setCustomer(customer);
+        }
+
+        return customerRepository.save(customer);
+    }
 }

@@ -4,9 +4,7 @@ import com.pulse.shoppingcart.domain.model.Product;
 import com.pulse.shoppingcart.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,5 +18,10 @@ public class ProductController {
     @GetMapping(produces = "application/json")
     public ResponseEntity<List<Product>> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProducts());
+    }
+
+    @PostMapping(consumes = "application/json", produces = "application/json")
+    public ResponseEntity<Product> getCustomerAdresses(@RequestBody Product product) {
+        return ResponseEntity.ok(productService.saveProduct(product));
     }
 }

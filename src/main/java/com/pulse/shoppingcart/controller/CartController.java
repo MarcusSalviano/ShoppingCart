@@ -29,9 +29,14 @@ public class CartController {
         return ResponseEntity.ok(cartService.createCart(customerId));
     }
 
-    @PostMapping(value = "/{cartId}/items")
+    @PostMapping(value = "/{cartId}/items", consumes = "application/json")
     public ResponseEntity<Cart> addItem(@PathVariable Long cartId, @RequestBody AddItemDto request) {
         return ResponseEntity.ok(cartService.addItem(cartId, request.productId(), request.quantity(), request.discount()));
+    }
+
+    @PostMapping(value = "/del-item/{itemId}", produces = "application/json")
+    public ResponseEntity<String> addItem(@PathVariable Long itemId) {
+        return ResponseEntity.ok("Item removed successfully!");
     }
 
     @PostMapping(value = "/{cartId}/discount")

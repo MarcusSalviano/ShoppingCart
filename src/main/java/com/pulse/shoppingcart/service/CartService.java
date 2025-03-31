@@ -5,6 +5,7 @@ import com.pulse.shoppingcart.domain.model.Cart;
 import com.pulse.shoppingcart.domain.model.CartItem;
 import com.pulse.shoppingcart.domain.model.Customer;
 import com.pulse.shoppingcart.domain.model.Product;
+import com.pulse.shoppingcart.repository.CartItemRepository;
 import com.pulse.shoppingcart.repository.CartRepository;
 import com.pulse.shoppingcart.repository.CustomerRepository;
 import com.pulse.shoppingcart.repository.ProductRepository;
@@ -20,6 +21,7 @@ import java.util.List;
 public class CartService {
 
     private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
 
@@ -65,5 +67,12 @@ public class CartService {
 
     public Customer createCustomer(Customer customer) {
         return customerRepository.save(customer);
+    }
+
+    public void removeItem(Long itemId) {
+        CartItem cartItem = cartItemRepository.findById(itemId)
+                .orElseThrow(() -> new EntityNotFoundException("CartItem not found"));
+
+        cartItemRepository.delete(cartItem);
     }
 }
