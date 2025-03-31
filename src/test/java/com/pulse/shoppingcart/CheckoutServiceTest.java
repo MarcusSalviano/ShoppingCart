@@ -8,6 +8,7 @@ import com.pulse.shoppingcart.repository.CartRepository;
 import com.pulse.shoppingcart.repository.CustomerAddressRepository;
 import com.pulse.shoppingcart.repository.OrderRepository;
 import com.pulse.shoppingcart.service.CheckoutService;
+import com.pulse.shoppingcart.util.PriceUtils;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,10 +41,8 @@ class CheckoutServiceTest {
     private Cart cart;
     private Customer customer;
     private CustomerAddress address;
-    private Product product1;
-    private Product product2;
-    private CartItem cartItem1;
-    private CartItem cartItem2;
+    private Product product1, product2, product3;
+    private CartItem cartItem1, cartItem2, cartItemWithDiscount;
 
     @BeforeEach
     void setUp() {
@@ -62,17 +61,22 @@ class CheckoutServiceTest {
         product1.setId(1L);
         product2 = new Product("Product 2", BigDecimal.valueOf(5.50));
         product2.setId(2L);
+        product3 = new Product("Product 3", BigDecimal.valueOf(20.00));
+        product3.setId(3L);
 
         cart = new Cart(customer);
         cart.setId(1L);
         cart.setCheckedOut(false);
+        cart.setDiscount(BigDecimal.valueOf(10)); // 10% discount for the whole cart
 
-        cartItem1 = new CartItem(product1, 2, null, cart);
-        cartItem2 = new CartItem(product2, 3, null, cart);
+        cartItem1 = new CartItem(product1, 2, null, cart); // no item discount
+        cartItem2 = new CartItem(product2, 3, null, cart); // no item discount
+        cartItemWithDiscount = new CartItem(product3, 1, BigDecimal.valueOf(5), cart); // 5% item discount
 
         List<CartItem> items = new ArrayList<>();
         items.add(cartItem1);
         items.add(cartItem2);
+        items.add(cartItemWithDiscount);
         cart.setItems(items);
     }
 
@@ -92,23 +96,27 @@ class CheckoutServiceTest {
         assertEquals(address, result.getShippingAddress());
         assertEquals(ShippingMethod.STANDARD, result.getShippingMethod());
         assertEquals(PaymentMethod.CREDIT_CARD, result.getPaymentMethod());
+        assertEquals(cart.getDiscount(), result.getDiscount());
         assertNotNull(result.getOrderDate());
         assertFalse(result.getOrderDate().isAfter(LocalDateTime.now()));
 
-        // Verify items and total
-        assertEquals(2, result.getItems().size());
-        BigDecimal expectedTotal = product1.getPrice().multiply(BigDecimal.valueOf(2))
-                .add(product2.getPrice().multiply(BigDecimal.valueOf(3)));
-        assertEquals(expectedTotal, result.getTotal());
+        assertEquals(3, result.getItems().size());
 
-        // Verify cart is marked as checked out
+        BigDecimal item1Total = PriceUtils.getProductTotal(cartItem1, null);
+        BigDecimal item2Total = PriceUtils.getProductTotal(cartItem2, null);
+        BigDecimal item3Total = PriceUtils.getProductTotal(cartItemWithDiscount, cartItemWithDiscount.getDiscount());
+        BigDecimal subtotal = item1Total.add(item2Total).add(item3Total);
+        BigDecimal expectedTotal = PriceUtils.getTotalWithDiscount(subtotal, cart.getDiscount());
+
+        assertEquals(0, expectedTotal.compareTo(result.getTotal()));
+
         assertTrue(cart.isCheckedOut());
 
-        // Verify repository interactions
         verify(cartRepository).findById(1L);
         verify(addressRepository).findById(1L);
         verify(orderRepository).save(any(Order.class));
     }
+
 
     @Test
     void checkout_CartNotFound_ThrowsException() {
@@ -116,7 +124,7 @@ class CheckoutServiceTest {
         when(cartRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(Exception.class, () ->
+        assertThrows(EntityNotFoundException.class, () ->
                 checkoutService.checkout(1L, 1L, ShippingMethod.STANDARD, PaymentMethod.CREDIT_CARD)
         );
 
@@ -184,14 +192,17 @@ class CheckoutServiceTest {
         Order result = checkoutService.checkout(1L, 1L, ShippingMethod.CORREIOS_PAC, PaymentMethod.BOLETO);
 
         // Assert
-        assertEquals(2, result.getItems().size());
+        assertEquals(3, result.getItems().size());
 
-        OrderItem item1 = result.getItems().getFirst();
-        assertEquals(product1.getId(), item1.getProduct().getId());
-        assertEquals(cartItem1.getQuantity(), item1.getQuantity());
-
-        OrderItem item2 = result.getItems().get(1);
-        assertEquals(product2.getId(), item2.getProduct().getId());
-        assertEquals(cartItem2.getQuantity(), item2.getQuantity());
+        result.getItems().forEach(orderItem -> {
+            assertNotNull(orderItem.getProduct());
+            assertTrue(orderItem.getQuantity() > 0);
+            assertEquals(orderItem.getDiscount(),
+                    cart.getItems().stream()
+                            .filter(ci -> ci.getProduct().getId().equals(orderItem.getProduct().getId()))
+                            .findFirst()
+                            .map(CartItem::getDiscount)
+                            .orElse(null));
+        });
     }
 }

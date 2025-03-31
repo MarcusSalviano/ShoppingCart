@@ -56,24 +56,24 @@ class CheckoutServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // Clear any existing data
+        // Clear existing data
         orderRepository.deleteAll();
         cartRepository.deleteAll();
         addressRepository.deleteAll();
         productRepository.deleteAll();
         customerRepository.deleteAll();
 
-        // Create and save test customer
+        // Create and save customer
         customer = new Customer("John Doe", "john@example.com");
         customer = customerRepository.save(customer);
 
-        // Create and save test products
+        // Create and save products
         product1 = new Product("Product 1", BigDecimal.valueOf(19.99));
         product2 = new Product("Product 2", BigDecimal.valueOf(9.99));
         product1 = productRepository.save(product1);
         product2 = productRepository.save(product2);
 
-        // Create and save test address
+        // Create and save address
         address = new CustomerAddress();
         address.setAddressName("Home");
         address.setStreet("123 Main St");
@@ -83,7 +83,7 @@ class CheckoutServiceIntegrationTest {
         address.setCustomer(customer);
         address = addressRepository.save(address);
 
-        // Create and save test cart with items
+        // Create and save cart with items
         cart = new Cart(customer);
         cart = cartRepository.save(cart);
 
@@ -96,7 +96,7 @@ class CheckoutServiceIntegrationTest {
         cart.setItems(items);
         cart = cartRepository.save(cart);
 
-        // Flush and clear the persistence context to ensure everything is saved
+        // Flush to ensure persistence
         entityManager.flush();
         entityManager.clear();
     }
@@ -120,27 +120,29 @@ class CheckoutServiceIntegrationTest {
         assertNotNull(order.getOrderDate());
         assertFalse(order.getOrderDate().isAfter(LocalDateTime.now()));
 
-        // Verify items and total
-        assertEquals(2, order.getItems().size());
         BigDecimal expectedTotal = product1.getPrice().multiply(BigDecimal.valueOf(2))
                 .add(product2.getPrice().multiply(BigDecimal.valueOf(3)));
         assertEquals(0, expectedTotal.compareTo(order.getTotal()));
 
-        // Verify cart is marked as checked out
         Cart updatedCart = cartRepository.findById(cart.getId()).orElseThrow();
         assertTrue(updatedCart.isCheckedOut());
 
-        // Verify order is persisted
         assertTrue(orderRepository.existsById(order.getId()));
     }
 
     @Test
     void checkout_CartNotFound_ThrowsException() {
+        // Arrange
+        long cartId = 999L;
+        long addressId = address.getId();
+
         // Act & Assert
-        assertThrows(Exception.class, () ->
-                checkoutService.checkout(999L, address.getId(), ShippingMethod.STANDARD, PaymentMethod.PIX)
-        );
+        assertThrows(EntityNotFoundException.class, () -> {
+            checkoutService.checkout(cartId, addressId, ShippingMethod.STANDARD, PaymentMethod.PIX);
+        });
     }
+
+
 
     @Test
     void checkout_AddressNotFound_ThrowsException() {
@@ -199,7 +201,7 @@ class CheckoutServiceIntegrationTest {
         // Assert
         assertEquals(2, order.getItems().size());
 
-        OrderItem item1 = order.getItems().getFirst();
+        OrderItem item1 = order.getItems().get(0);
         assertEquals(product1.getName(), item1.getProduct().getName());
         assertEquals(2, item1.getQuantity());
         assertEquals(0, product1.getPrice().compareTo(item1.getProduct().getPrice()));

@@ -80,7 +80,7 @@ class CartServiceTest {
         Cart result = cartService.addItem(1L, 2L, 3);
 
         assertEquals(1, result.getItems().size());
-        CartItem item = result.getItems().get(0);
+        CartItem item = result.getItems().getFirst();
         assertEquals(product, item.getProduct());
         assertEquals(3, item.getQuantity());
         assertEquals(cart, item.getCart());
@@ -112,5 +112,15 @@ class CartServiceTest {
         assertEquals(customer, result);
         verify(customerRepository).save(customer);
     }
-}
 
+    @Test
+    void addItem_WhenCartIsCheckedOut_ThrowsException() {
+        Cart cart = new Cart();
+        cart.setCheckedOut(true); // Cart already checked out
+        Product product = new Product();
+        when(cartRepository.findById(1L)).thenReturn(Optional.of(cart));
+        when(productRepository.findById(2L)).thenReturn(Optional.of(product));
+
+        assertThrows(IllegalStateException.class, () -> cartService.addItem(1L, 2L, 1));
+    }
+}
