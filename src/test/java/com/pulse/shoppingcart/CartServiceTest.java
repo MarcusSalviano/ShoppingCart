@@ -5,6 +5,7 @@ import com.pulse.shoppingcart.domain.model.Cart;
 import com.pulse.shoppingcart.domain.model.CartItem;
 import com.pulse.shoppingcart.domain.model.Customer;
 import com.pulse.shoppingcart.domain.model.Product;
+import com.pulse.shoppingcart.repository.CartItemRepository;
 import com.pulse.shoppingcart.repository.CartRepository;
 import com.pulse.shoppingcart.repository.CustomerRepository;
 import com.pulse.shoppingcart.repository.ProductRepository;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.*;
 class CartServiceTest {
 
     private CartRepository cartRepository;
+    private CartItemRepository cartItemRepository;
     private CustomerRepository customerRepository;
     private ProductRepository productRepository;
     private CartService cartService;
@@ -32,7 +34,7 @@ class CartServiceTest {
         cartRepository = mock(CartRepository.class);
         customerRepository = mock(CustomerRepository.class);
         productRepository = mock(ProductRepository.class);
-        cartService = new CartService(cartRepository, customerRepository, productRepository);
+        cartService = new CartService(cartRepository, cartItemRepository, customerRepository, productRepository);
     }
 
     @Test
