@@ -31,7 +31,9 @@ public class PriceUtils {
         BigDecimal itemTotal = item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
         total = total.add(itemTotal);
 
-        return getTotalWithDiscount(total, discount).setScale(2, RoundingMode.HALF_UP);
+        return getTotalWithDiscount(total, discount)
+                .setScale(2, RoundingMode.HALF_UP)
+                .stripTrailingZeros();
     }
 
     public static BigDecimal getTotalWithDiscount(BigDecimal total, BigDecimal discount) {
