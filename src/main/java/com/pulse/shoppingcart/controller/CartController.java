@@ -1,5 +1,6 @@
 package com.pulse.shoppingcart.controller;
 
+import com.pulse.shoppingcart.domain.dto.AddDiscountDto;
 import com.pulse.shoppingcart.domain.dto.AddItemDto;
 import com.pulse.shoppingcart.domain.model.Cart;
 import com.pulse.shoppingcart.domain.dto.CartDto;
@@ -30,7 +31,12 @@ public class CartController {
 
     @PostMapping(value = "/{cartId}/items")
     public ResponseEntity<Cart> addItem(@PathVariable Long cartId, @RequestBody AddItemDto request) {
-        return ResponseEntity.ok(cartService.addItem(cartId, request.productId(), request.quantity()));
+        return ResponseEntity.ok(cartService.addItem(cartId, request.productId(), request.quantity(), request.discount()));
+    }
+
+    @PostMapping(value = "/{cartId}/discount")
+    public ResponseEntity<Cart> addDiscount(@PathVariable Long cartId, @RequestBody AddDiscountDto request) {
+        return ResponseEntity.ok(cartService.addDiscount(cartId, request.discount()));
     }
 
     @PostMapping(value = "/customer", consumes = "application/json", produces = "application/json")

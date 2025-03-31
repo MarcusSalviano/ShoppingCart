@@ -13,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,24 +74,27 @@ class CartServiceTest {
         Product product = new Product();
         product.setId(2L);
 
+        BigDecimal discount = new BigDecimal("10.00");
+
         when(cartRepository.findById(1L)).thenReturn(Optional.of(cart));
         when(productRepository.findById(2L)).thenReturn(Optional.of(product));
         when(cartRepository.save(any(Cart.class))).thenAnswer(i -> i.getArgument(0));
 
-        Cart result = cartService.addItem(1L, 2L, 3);
+        Cart result = cartService.addItem(1L, 2L, 3, discount);
 
         assertEquals(1, result.getItems().size());
         CartItem item = result.getItems().getFirst();
         assertEquals(product, item.getProduct());
         assertEquals(3, item.getQuantity());
         assertEquals(cart, item.getCart());
+        assertEquals(discount, item.getDiscount());
     }
 
     @Test
     void addItem_WithInvalidCartId_ThrowsException() {
         when(cartRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> cartService.addItem(1L, 2L, 1));
+        assertThrows(EntityNotFoundException.class, () -> cartService.addItem(1L, 2L, 1, BigDecimal.ZERO));
     }
 
     @Test
@@ -99,7 +103,7 @@ class CartServiceTest {
         when(cartRepository.findById(1L)).thenReturn(Optional.of(cart));
         when(productRepository.findById(2L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> cartService.addItem(1L, 2L, 1));
+        assertThrows(EntityNotFoundException.class, () -> cartService.addItem(1L, 2L, 1, BigDecimal.ZERO));
     }
 
     @Test
@@ -121,6 +125,6 @@ class CartServiceTest {
         when(cartRepository.findById(1L)).thenReturn(Optional.of(cart));
         when(productRepository.findById(2L)).thenReturn(Optional.of(product));
 
-        assertThrows(IllegalStateException.class, () -> cartService.addItem(1L, 2L, 1));
+        assertThrows(IllegalStateException.class, () -> cartService.addItem(1L, 2L, 1, BigDecimal.ZERO));
     }
 }

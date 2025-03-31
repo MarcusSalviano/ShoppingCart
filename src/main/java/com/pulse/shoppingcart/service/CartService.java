@@ -12,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -34,7 +35,7 @@ public class CartService {
         return cartRepository.save(new Cart(customer));
     }
 
-    public Cart addItem(Long cartId, Long productId, Integer quantity) {
+    public Cart addItem(Long cartId, Long productId, Integer quantity, BigDecimal discount) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
 
@@ -45,11 +46,22 @@ public class CartService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
-        cart.getItems().add(new CartItem(product, quantity, null, cart));
+        cart.getItems().add(new CartItem(product, quantity, discount, cart));
 
         return cartRepository.save(cart);
     }
 
+    public Cart addDiscount(Long cartId, BigDecimal discount) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
+        if (cart.isCheckedOut()) {
+            throw new IllegalStateException("Cannot add items to a checked out cart");
+        }
+
+        cart.setDiscount(discount);
+
+        return cartRepository.save(cart);
+    }
 
     public Customer createCustomer(Customer customer) {
         return customerRepository.save(customer);
